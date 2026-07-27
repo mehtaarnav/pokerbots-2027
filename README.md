@@ -33,6 +33,17 @@ checking that a change actually made the agent stronger rather than just
 different. The three are built and exercised together, not bolted on at the
 end.
 
+## See it work
+
+**[Kuhn poker, solved live in your browser →](https://mehtaarnav.github.io/pokerbots-2027/)**
+
+A small, self-contained demo: the page runs a real equilibrium-finding
+algorithm (counterfactual regret minimization) against a three-card poker
+game small enough to have a known, exact solution, and shows it converge to
+that solution from scratch. Then you can play a few hands against the
+strategy it just derived. Nothing about the actual competition entry — just
+proof that the underlying method is implemented correctly.
+
 ## Status
 
 In active development ahead of January 2027. The full source is in a private
