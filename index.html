@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Doomsday — heads-up no-limit poker, MIT Pokerbots 2027</title>
+<meta name="description" content="A heads-up no-limit poker agent for MIT Pokerbots 2027. One training and evaluation pipeline, pointed at whichever variant the competition announces." />
+<style>
+  :root {
+    --bg: #16181D;
+    --panel: #1D2027;
+    --line: #2C313A;
+    --ink: #E4E8EC;
+    --dim: #9AA3AD;
+    --steel: #C9CFD6;
+    --red: #D01F2E;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #FFFFFF; --panel: #F6F8F9; --line: #DDE3E8;
+      --ink: #0F1419; --dim: #5C6A73; --steel: #6F7883;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* faint measurement grid, so the page reads as an instrument face */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 46px 46px;
+    opacity: .30;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  header { padding: 84px 0 56px; }
+  .lockup { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+  .lockup img { width: 104px; height: auto; image-rendering: pixelated; }
+  h1 {
+    margin: 0; font-size: 40px; font-weight: 700;
+    letter-spacing: .20em; line-height: 1;
+  }
+  .tagline {
+    margin: 14px 0 0; color: var(--dim);
+    font-size: 12px; letter-spacing: .26em; text-transform: uppercase;
+  }
+
+  .lede { margin: 40px 0 0; font-size: 17px; max-width: 62ch; }
+  .lede strong { color: var(--ink); font-weight: 700; }
+
+  h2 {
+    margin: 72px 0 20px; font-size: 12px; font-weight: 700;
+    letter-spacing: .26em; text-transform: uppercase; color: var(--dim);
+    padding-bottom: 10px; border-bottom: 1px solid var(--line);
+  }
+  p { max-width: 66ch; }
+  a { color: var(--ink); text-decoration-color: var(--steel); text-underline-offset: 3px; }
+  a:hover { color: var(--red); text-decoration-color: var(--red); }
+
+  figure { margin: 28px 0; }
+  figure img { width: 100%; height: auto; display: block; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 14px; }
+  .card { border: 1px solid var(--line); background: var(--panel); padding: 18px 20px; }
+  .card h3 {
+    margin: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: .10em;
+  }
+  .card p { margin: 0; color: var(--dim); font-size: 13.5px; }
+
+  .cta {
+    display: inline-block; margin-top: 8px; padding: 11px 20px;
+    border: 1px solid var(--line); background: var(--panel);
+    text-decoration: none; letter-spacing: .10em; font-size: 13px;
+  }
+  .cta:hover { border-color: var(--red); color: var(--red); }
+
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 10px 26px; margin: 0; }
+  dt { color: var(--dim); font-size: 13px; letter-spacing: .06em; }
+  dd { margin: 0; font-size: 13.5px; }
+
+  footer {
+    margin-top: 88px; padding: 26px 0 60px;
+    border-top: 1px solid var(--line); color: var(--dim); font-size: 12.5px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="lockup">
+      <img src="assets/mask.svg" alt="" />
+      <div>
+        <h1>DOOMSDAY</h1>
+        <p class="tagline">Heads-up no-limit poker &middot; MIT Pokerbots 2027</p>
+      </div>
+    </div>
+
+    <p class="lede">
+      The competition announces its game variant in early January and allots each
+      bot <strong>30 seconds of compute for 1000 hands</strong>. The variant is not
+      known before the announcement, so this is a platform rather than a single
+      bot: one training and evaluation pipeline that can be pointed at any variant
+      the competition engine's interface admits.
+    </p>
+  </header>
+
+  <h2>How it works</h2>
+  <p>
+    The strategy is computed offline. A C++ trainer approximates equilibrium play
+    with Monte Carlo counterfactual regret minimization and writes a table holding
+    one strategy per abstracted decision. During a match the bot maps the current
+    state into that abstraction and reads the stored response, so a decision costs
+    a table lookup and no search runs at the table.
+  </p>
+  <p>
+    The abstraction has one implementation. The same key-construction functions
+    are compiled into the trainer and imported by the Python bot, so the state the
+    trainer learned and the state the bot looks up are the same state.
+  </p>
+
+  <figure>
+    <img src="assets/architecture-dark.svg" alt="Trainer, strategy table and match play over a shared abstraction, with four evaluation instruments" id="arch" />
+  </figure>
+
+  <h2>Measurement</h2>
+  <p>
+    Evaluation is built as its own subsystem rather than a final step. Four
+    instruments, covering different failures.
+  </p>
+  <div class="grid">
+    <div class="card">
+      <h3>Local Best Response</h3>
+      <p>A lower bound on how much a worst-case opponent could win.</p>
+    </div>
+    <div class="card">
+      <h3>Opponent zoo</h3>
+      <p>Match-win probability across a parameterised spread of styles.</p>
+    </div>
+    <div class="card">
+      <h3>External opponents</h3>
+      <p>Bots this project did not write, which is the only check on overfitting to its own.</p>
+    </div>
+    <div class="card">
+      <h3>Cross-language key oracle</h3>
+      <p>Confirms trainer and bot derive identical keys from identical states.</p>
+    </div>
+  </div>
+
+  <h2>Hand replayer</h2>
+  <p>
+    Step through a match hand by hand: hole cards, board, betting, pot and stacks.
+    Drop an engine <code>gamelog.txt</code> onto it. One file, no build step, no
+    dependencies.
+  </p>
+  <a class="cta" href="replayer.html">Open the replayer &rarr;</a>
+
+  <h2>Solver demo</h2>
+  <p>
+    Kuhn poker is a three-card game small enough to have a known exact solution,
+    which makes it the standard correctness check for an equilibrium solver. The
+    page runs counterfactual regret minimization in the browser, converges to
+    that solution from scratch, and then deals you hands against the strategy it
+    just derived. It is textbook material and describes nothing about the
+    competition entry.
+  </p>
+  <a class="cta" href="kuhn.html">Run the solver &rarr;</a>
+
+  <h2>Variants</h2>
+  <p>
+    The game interface confines dealing, hand ranking and betting structure to one
+    place. The solver, the abstraction and the evaluation code are
+    variant-independent, and five variants are implemented behind the interface as
+    a readiness check.
+  </p>
+  <dl>
+    <dt>Constraint</dt><dd>30 s of compute per bot per 1000-hand match, single thread</dd>
+    <dt>Format</dt><dd>Heads-up, 200 big blinds deep</dd>
+    <dt>Known</dt><dd>The engine interface, the clock, the stack depth</dd>
+    <dt>Unknown</dt><dd>The variant, until the January announcement</dd>
+  </dl>
+
+  <footer>
+    <a href="https://github.com/mehtaarnav/pokerbots-2027">Source</a> &middot;
+    MIT licensed &middot;
+    Built on <a href="https://github.com/julianandrews/pyeval7">eval7</a> &middot;
+    Active development ahead of January 2027
+  </footer>
+
+</div>
+
+<script>
+  // the architecture diagram ships in two themes; pick the one that matches
+  (function () {
+    var img = document.getElementById('arch');
+    function set(e) {
+      img.src = 'assets/architecture-' + (e.matches ? 'dark' : 'light') + '.svg';
+    }
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    set(mq);
+    mq.addEventListener ? mq.addEventListener('change', set)
+                        : mq.addListener(set);
+  })();
+</script>
+</body>
+</html>
