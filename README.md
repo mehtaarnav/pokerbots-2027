@@ -1,8 +1,9 @@
 <div align="center">
 
-<img src="assets/mask.svg" alt="" width="120" />
-
-# DOOMSDAY
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/lockup-dark.svg" />
+  <img src="assets/lockup-light.svg" alt="Doomsday" width="620" />
+</picture>
 
 **Heads-up no-limit poker · MIT Pokerbots 2027**
 
@@ -42,18 +43,22 @@ a table lookup and no search runs at the table.
 
 The abstraction has one implementation. The same key-construction functions are
 compiled into the trainer and imported by the Python bot, so the state the
-trainer learned and the state the bot looks up are the same state. A
-cross-language oracle checks that property directly.
-
-Evaluation is a subsystem rather than a final step. Four instruments cover
-different failures: a local best response bound, an opponent zoo scored by
-match-win probability, external opponents this project did not write, and the
-key oracle.
+trainer learned and the state the bot looks up are the same state.
 
 The game interface confines dealing, hand ranking and betting structure to one
 place. The solver, the abstraction and the evaluation code are
-variant-independent, and five variants are implemented behind the interface as
-a readiness check.
+variant-independent, and five variants are implemented behind the interface.
+
+## Evaluation
+
+Four instruments, covering different failures.
+
+- **Local Best Response.** A lower bound on worst-case exploitability.
+- **A parameterised opponent zoo.** Match-win probability across a spread of
+  behavioural styles.
+- **External opponents.** Bots this project did not write.
+- **A cross-language key oracle.** Confirms the trainer and the bot derive
+  identical keys from identical game states.
 
 ## See it work
 
@@ -63,7 +68,7 @@ dependencies.
 | | |
 |---|---|
 | **[Project page](https://mehtaarnav.github.io/pokerbots-2027/)** | The architecture and how it is measured. |
-| **[Kuhn poker, solved live](https://mehtaarnav.github.io/pokerbots-2027/kuhn.html)** | Counterfactual regret minimization running in the browser against a three-card game small enough to have a known exact solution. It converges from scratch, then deals you hands against the strategy it just derived. Textbook material, and nothing about the competition entry. |
+| **[Kuhn poker, solved live](https://mehtaarnav.github.io/pokerbots-2027/kuhn.html)** | Counterfactual regret minimization running in the browser against a three-card game small enough to have a known exact solution. It converges from scratch, then deals you hands against the strategy it just derived. |
 | **[Hand replayer](https://mehtaarnav.github.io/pokerbots-2027/replayer.html)** | Steps through a match hand by hand: hole cards, board, betting, pot and stacks. Drop an engine `gamelog.txt` onto it. |
 
 ## This repository
@@ -79,6 +84,6 @@ and the competition are still ahead. This repository is the public front door.
 
 ## Status
 
-In active development ahead of January 2027.
+Active development ahead of the January 2027 competition.
 
-*Team Doomsday.*
+MIT licensed. Built on [eval7](https://github.com/julianandrews/pyeval7).
