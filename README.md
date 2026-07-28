@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/mask.png" alt="" width="120" />
+<img src="assets/mask.svg" alt="" width="120" />
 
 # DOOMSDAY
 
