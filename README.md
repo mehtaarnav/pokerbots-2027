@@ -35,14 +35,19 @@ end.
 
 ## See it work
 
-**[Kuhn poker, solved live in your browser →](https://mehtaarnav.github.io/pokerbots-2027/)**
+**[Project page →](https://mehtaarnav.github.io/pokerbots-2027/)**
 
-A small, self-contained demo: the page runs a real equilibrium-finding
-algorithm (counterfactual regret minimization) against a three-card poker
-game small enough to have a known, exact solution, and shows it converge to
-that solution from scratch. Then you can play a few hands against the
-strategy it just derived. Nothing about the actual competition entry — just
-proof that the underlying method is implemented correctly.
+Three self-contained pages, no build step and no dependencies:
+
+- **[Kuhn poker, solved live](https://mehtaarnav.github.io/pokerbots-2027/kuhn.html)**
+  runs counterfactual regret minimization in the browser against a three-card
+  game small enough to have a known exact solution, converges to that solution
+  from scratch, then deals you hands against the strategy it just derived.
+  Textbook material, and nothing about the competition entry.
+- **[Hand replayer](https://mehtaarnav.github.io/pokerbots-2027/replayer.html)**
+  steps through a match hand by hand — hole cards, board, betting, pot and
+  stacks. Drop an engine `gamelog.txt` onto it.
+- The project page itself describes the architecture and how it is measured.
 
 ## Status
 
